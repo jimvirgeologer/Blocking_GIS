@@ -1,0 +1,13 @@
+name: Blocking_GIS
+title: Blocking_GIS
+username:
+account: mcmadarang
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 6542004
+bundleId: 6038176
+url: https://mcmadarang.shinyapps.io/Blocking_GIS/
+when: 1656038020.86399
+lastSyncTime: 1656038020.86399
+asMultiple: FALSE
+asStatic: FALSE

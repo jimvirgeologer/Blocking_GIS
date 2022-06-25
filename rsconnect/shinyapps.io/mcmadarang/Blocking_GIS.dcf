@@ -5,9 +5,10 @@ account: mcmadarang
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 6542004
-bundleId: 6038176
+bundleId: 6041496
 url: https://mcmadarang.shinyapps.io/Blocking_GIS/
-when: 1656038020.86399
-lastSyncTime: 1656038020.86399
+when: 1656120927.27656
+lastSyncTime: 1656120927.27656
 asMultiple: FALSE
 asStatic: FALSE
+ignoredFiles: 2021_UGFS.xlsx|Loading_GIS.R|FACE_MAPPING_GIS|Shapefiles

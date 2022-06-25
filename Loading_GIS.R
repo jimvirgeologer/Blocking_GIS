@@ -6,6 +6,7 @@ library(ggplot2)
 library(plotly)
 library(viridis)
 library(RColorBrewer)
+library(visdat)
 
 
 
@@ -35,7 +36,8 @@ face_map_gis<- function(i) {
       "c9",
       "c10",
       "c11",
-      "c12"
+      "c12",
+      "c13"
     )
   
   x <- x %>% transmute(
@@ -50,6 +52,15 @@ face_map_gis<- function(i) {
     SAMP_BY = as.character(c9),
     TENEMENT = as.character(c11)) %>%
     filter(!is.na(HOLE_ID))
+  
+  
+  
+  
+  
+  ########## For Loop Veins############
+  
+
+  
 } 
 
 
@@ -63,8 +74,21 @@ df_gis_coords <- lapply(file.list_gis, face_map_gis) %>%
   as.data.frame() %>%
 distinct(.keep_all = TRUE)
 
+########### Adding Vein#########
+for  (j in c( "SDN", "SDN3", "SDN2","SDN2 SPLIT","SDN2S","SDN4", "SDN4 SPLIT","MST2", "MAS FWS", "MAS","MHWS" ,"MAI","MAIHWS", "MAI_HWS","MAI HWS", "MAIS", "BNZ", "BHWS" , "JES" , "SDY", "BBK", "BIBAK","SDN SPLIT","SDY SPLIT", "SDNS","MST_SPLIT","MST2_FWS")) {
+  df_gis_coords[grepl(j,df_gis_coords$HOLE_ID),"VEIN"] <- j
+}
+
+VEIN_NAME <- c(c( "SDN", "SDN3", "SDN2","SDN2 SPLIT","SDN2S","SDN4", "SDN4 SPLIT","MST2", "MAS FWS", "MAS","MHWS" ,"MAI","MAIHWS", "MAI_HWS","MAI HWS", "MAIS", "BNZ", "BHWS" , "JES" , "SDY", "BBK", "BIBAK","SDN SPLIT","SDY SPLIT", "SDNS","MST_SPLIT","MST2_FWS"))
+ROCK_CODE <- c(c( "140", "170", "150","151","151","180", "000","420", "421", "120","121" ,"220","221", "221","221", "000", "110", "113" , "160" , "140", "130", "130","140 - 000","140 - 000", "140 - 000","420 - 000","421"))
+
+VEIN_ROCK_CODE <- cbind(VEIN_NAME, ROCK_CODE) %>% as.data.frame()
 
 
+df_gis_coords <- left_join(df_gis_coords,VEIN_ROCK_CODE, by = c("VEIN" = "VEIN_NAME"))
+
+df_gis_coords <- df_gis_coords %>% 
+  mutate(fn_ROCKCODE =ifelse(is.na(ROCKCODE), ROCK_CODE,ROCKCODE))
 
 
 ########### Loading Assay Values ###############
@@ -128,6 +152,13 @@ face_map_gis_assay<- function(i) {
    
    ) %>%
     filter(!is.na(HOLE_ID))
+  
+  
+  
+  
+  
+
+  
 } 
 
 
@@ -167,6 +198,11 @@ df_gis_assay_block <- df_gis_assay %>% group_by(HOLE_ID) %>%
   summarize(COMP_AU = sum(LEN_AU)/sum(LENGTH))
 
 
+df_gis_assay_block$cat <- cut(df_gis_assay_block$COMP_AU,
+              breaks=c(0,1, 3, 5, 10, 15,25),
+              labels=c('0 - 1', '1 - 3', '3 - 5', '5 - 10', '10 - 15', '15 - 25'))
+
+
 ############# Join Coordinates and assay##############
 
 df_joined <- left_join(df_gis_assay_block ,df_gis_coords,by = "HOLE_ID")
@@ -182,10 +218,28 @@ face_map_plot <- ggplot(data = df_points, aes(color = COMP_AU, text = HOLE_ID)) 
   scale_colour_gradientn(colours = c("purple","red","#FF5349","yellow", "green", "blue", "gray"),
                          values = c(1.0,0.4,0.32,0.2,0.12,0.04,0))
 
-ggplotly(face_map_plot,tooltip = "text")
+
+############ plotly
 
 
 
+col <- colorRamp(c("gray","blue","green","yellow","red","purple"))
+
+
+plot <- plot_ly(data = df_points) %>% 
+add_sf(type = "scatter", color = ~fn_ROCKCODE, text = ~HOLE_ID)%>% 
+  layout(title = "AMCI Face Samples",
+         plot_bgcolor='#e5ecf6', 
+         xaxis = list( 
+           zerolinecolor = '#ffff', 
+           zerolinewidth = 2, 
+           gridcolor = 'ffff'), 
+         yaxis = list( 
+           zerolinecolor = '#ffff', 
+           zerolinewidth = 2, 
+           gridcolor = 'ffff') )
+
+plot
 ############ INPUT SHAPEFILE POSITION LINES ###############  
 
 

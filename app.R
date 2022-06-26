@@ -3,18 +3,35 @@ library(ggplot2)
 library(ggthemes)
 library(plotly)
 library(rsconnect)
+library(shinythemes)
+library(tidyverse)
+library(dplyr)
 
 ui <- fluidPage(  
 
   titlePanel("MACO MINE"),
-      plotlyOutput("plot2", height = 1080, width = 1920))
+  theme = shinythemes::shinytheme('flatly'),
+  sidebarLayout(
+    sidebarPanel(
+      selectInput('VEIN', 'Select VEIN', POS_FACE_MAP_AVERAGE$fn_ROCKCODE,selected=as.factor(levels(POS_FACE_MAP_AVERAGE$fn_ROCKCODE)[1]))),
+    mainPanel(
+        tabsetPanel(
+          tabPanel("MAP",plotlyOutput("plot2", height = 960, width = 1500)),
+          tabPanel("VEIN",plotlyOutput("BLOCKING_PLOT",height = 960, width = 1500))
+        )
+      )
+    )
+  )
+
+          
+          
+     
 server <- function(input, output) {
+
     
-  # ggplotly(face_map_plot,tooltip = "text")
-  
-    p2 <- 
+    p1 <-  function(){
       plot_ly(data = df_points) %>% 
-      add_sf(type = "scatter", color = ~cat, colors =col3)%>% 
+      add_sf(type = "scatter", color = ~fn_ROCKCODE, text = ~HOLE_ID)%>% 
       layout(title = "AMCI Face Samples",
              plot_bgcolor='#e5ecf6', 
              xaxis = list( 
@@ -25,10 +42,22 @@ server <- function(input, output) {
                zerolinecolor = '#ffff', 
                zerolinewidth = 2, 
                gridcolor = 'ffff') )
-    output$plot2 <- renderPlotly({p2})
+      
+    }
+    
+    output$plot2 <- plotly::renderPlotly({p1()})
+
+    
+    p2 <- function(){
+      POS_FACE_MAP_AVERAGE  %>% filter(fn_ROCKCODE == input$VEIN) %>% 
+      ggplot(aes(x = POS_N_S, y = LEVEL, label = AVE)) + 
+        geom_text(hjust = 0, vjust = 0, aes(colour = factor(AVE)))+
+        scale_colour_brewer(palette = "BuGnRd")
+   
+    }
+    
+    output$BLOCKING_PLOT<- plotly::renderPlotly({p2()})
 
 }
-
-
 
 shinyApp(ui, server)

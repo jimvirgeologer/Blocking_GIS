@@ -12,7 +12,7 @@ library(visdat)
 
 
 
-setwd("~/Current Work/R_projects/Blocking_GIS")
+setwd("~/Current Work/01_R_Projects/Blocking_GIS")
 toMatch <- c("~")
 file.list_gis <- list.files(path = './FACE_MAPPING_GIS', pattern = '.xlsx', recursive = TRUE, full.names = TRUE)
 file.list_gis <- file.list_gis[!grepl(paste(toMatch,collapse="|"), file.list_gis)]
@@ -244,7 +244,8 @@ plot
 
 ############ INPUT SHAPEFILE POSITION LINES ###############  
 
-setwd("~/Current Work/R_projects/Blocking_GIS/Shapefiles")
+setwd("~/Current Work/01_R_Projects/Blocking_GIS/Shapefiles")
+
 
 POS_LINES <- st_read(
   "./N_S_Positions.shp")
@@ -254,7 +255,7 @@ POS_LINES_PLOT <- ggplot() +
   ggtitle("POS_LINES_PLOT") + 
   coord_sf()
 
-ggplotly(POS_LINES_PLOT) 
+
 
 ############# Intersection of the position lines and the face mapping plots #############
 POS_FACE_MAP <- st_intersection(POS_LINES,df_points) 
@@ -267,5 +268,6 @@ POS_FACE_MAP_AVERAGE <- POS_FACE_MAP %>%
   group_by(POS_N_S, fn_ROCKCODE, LEVEL) %>% 
   summarize(AVE= mean(COMP_AU)) %>% mutate(AVE = signif(AVE,3))
 
-BLOCKING_PLOT <- POS_FACE_MAP_AVERAGE  %>% filter(fn_ROCKCODE == "180") %>% ggplot(aes(x = POS_N_S, y = LEVEL, label = AVE)) + geom_text(hjust = 0, vjust = 0)
+BLOCKING_PLOT <- POS_FACE_MAP_AVERAGE  %>% filter(fn_ROCKCODE == "180") %>% 
+  ggplot(aes(x = POS_N_S, y = LEVEL, label = AVE)) + geom_text(hjust = 0, vjust = 0)
 ggplotly(BLOCKING_PLOT)

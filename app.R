@@ -9,7 +9,7 @@ library(dplyr)
 
 ui <- fluidPage(  
 
-  titlePanel("MACO MINE"),
+  titlePanel("MACO MINE2"),
   theme = shinythemes::shinytheme('flatly'),
   sidebarLayout(
     sidebarPanel(
@@ -37,11 +37,13 @@ server <- function(input, output) {
              xaxis = list( 
                zerolinecolor = '#ffff', 
                zerolinewidth = 2, 
-               gridcolor = 'ffff'), 
+               gridcolor = 'ffff',
+               dtick = 5), 
              yaxis = list( 
                zerolinecolor = '#ffff', 
                zerolinewidth = 2, 
-               gridcolor = 'ffff') )
+               gridcolor = 'ffff',
+               tickvals = list(380, 605, 635, 650)))
       
     }
     
@@ -49,10 +51,15 @@ server <- function(input, output) {
 
     
     p2 <- function(){
-      POS_FACE_MAP_AVERAGE  %>% filter(fn_ROCKCODE == input$VEIN) %>% 
-      ggplot(aes(x = POS_N_S, y = LEVEL, label = AVE)) + 
-        geom_text(hjust = 0, vjust = 0, aes(colour = factor(AVE)))+
-        scale_colour_brewer(palette = "BuGnRd")
+      POS_FACE_MAP  %>% filter(fn_ROCKCODE == input$VEIN) %>% 
+      ggplot(aes(x = POS_N_S, y = LEVEL, label = HOLE_ID)) + 
+        # geom_text(hjust = 0, vjust = 0,nudge_x = 0.5,nudge_y = 0.5) +
+        geom_point()
+        
+        
+        
+        # geom_text(hjust = 0, vjust = 0, aes(colour = factor(AVE)))+
+        # scale_colour_brewer(palette = "BuGnRd")
    
     }
     

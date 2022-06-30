@@ -11,8 +11,7 @@ library(visdat)
 
 
 
-
-setwd("~/Current Work/01_R_Projects/Blocking_GIS")
+setwd("~/Current Work/R_projects/Blocking_GIS")
 toMatch <- c("~")
 file.list_gis <- list.files(path = './FACE_MAPPING_GIS', pattern = '.xlsx', recursive = TRUE, full.names = TRUE)
 file.list_gis <- file.list_gis[!grepl(paste(toMatch,collapse="|"), file.list_gis)]
@@ -88,7 +87,7 @@ VEIN_ROCK_CODE <- cbind(VEIN_NAME, ROCK_CODE) %>% as.data.frame()
 df_gis_coords <- left_join(df_gis_coords,VEIN_ROCK_CODE, by = c("VEIN" = "VEIN_NAME"))
 
 df_gis_coords <- df_gis_coords %>% 
-  mutate(fn_ROCKCODE =ifelse(is.na(ROCKCODE), ROCK_CODE,ROCKCODE))
+  mutate(fn_ROCKCODE =ifelse(is.na(ROCKCODE), paste(VEIN,ROCK_CODE, sep = " "),paste(VEIN,ROCKCODE, sep = " ")))
 
 
 ########### Loading Assay Values ###############
@@ -212,7 +211,12 @@ df_joined <- df_joined %>% filter(!is.na(LOCATIONX))
 ############ plotting of df files ############
 
 
-df_points<- st_as_sf(df_joined , coords = c("LOCATIONX", "LOCATIONY"), crs = 3125)
+df_points <- st_as_sf(df_joined , coords = c("LOCATIONX", "LOCATIONY"), crs = 3125)
+
+df_joined_XY <- df_joined %>% select(HOLE_ID,LOCATIONX,LOCATIONY)
+
+df_points <-left_join (df_points,df_joined_XY, by = "HOLE_ID") 
+  
 face_map_plot <- ggplot(data = df_points, aes(color = COMP_AU, text = HOLE_ID)) + 
   geom_sf(size = 2.0) +
   scale_colour_gradientn(colours = c("purple","red","#FF5349","yellow", "green", "blue", "gray"),
@@ -244,7 +248,7 @@ plot
 
 ############ INPUT SHAPEFILE POSITION LINES ###############  
 
-setwd("~/Current Work/01_R_Projects/Blocking_GIS/Shapefiles")
+setwd("~/Current Work/R_projects/Blocking_GIS/Shapefiles")
 
 
 POS_LINES <- st_read(
@@ -258,7 +262,8 @@ POS_LINES_PLOT <- ggplot() +
 
 
 ############# Intersection of the position lines and the face mapping plots #############
-POS_FACE_MAP <- st_intersection(POS_LINES,df_points) 
+POS_FACE_MAP <- st_intersection(POS_LINES,df_points)
+POS_FACE_MAP <- POS_FACE_MAP %>% mutate(BLOCK_LOCATIONX =  (LOCATIONX-((LOCATIONY - 815635.8096)/(tan(40*pi/180)))-614923.6274)/155.5724*10)
 
 
 ############## Compositing per block ##############
@@ -268,6 +273,6 @@ POS_FACE_MAP_AVERAGE <- POS_FACE_MAP %>%
   group_by(POS_N_S, fn_ROCKCODE, LEVEL) %>% 
   summarize(AVE= mean(COMP_AU)) %>% mutate(AVE = signif(AVE,3))
 
-BLOCKING_PLOT <- POS_FACE_MAP_AVERAGE  %>% filter(fn_ROCKCODE == "180") %>% 
-  ggplot(aes(x = POS_N_S, y = LEVEL, label = AVE)) + geom_text(hjust = 0, vjust = 0)
-ggplotly(BLOCKING_PLOT)
+# BLOCKING_PLOT <- POS_FACE_MAP_AVERAGE  %>% filter(fn_ROCKCODE == "180") %>% 
+#   ggplot(aes(x = POS_N_S, y = LEVEL, label = AVE)) + geom_text(hjust = 0, vjust = 0)
+# ggplotly(BLOCKING_PLOT)

@@ -9,7 +9,7 @@ library(dplyr)
 
 ui <- fluidPage(  
 
-  titlePanel("MACO MINE2"),
+  titlePanel("MACO MINE"),
   theme = shinythemes::shinytheme('flatly'),
   sidebarLayout(
     sidebarPanel(
@@ -42,8 +42,7 @@ server <- function(input, output) {
              yaxis = list( 
                zerolinecolor = '#ffff', 
                zerolinewidth = 2, 
-               gridcolor = 'ffff',
-               tickvals = list(380, 605, 635, 650)))
+               gridcolor = 'ffff'))
       
     }
     

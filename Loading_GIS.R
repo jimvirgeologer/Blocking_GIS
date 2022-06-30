@@ -74,7 +74,7 @@ df_gis_coords <- lapply(file.list_gis, face_map_gis) %>%
 distinct(.keep_all = TRUE)
 
 ########### Adding Vein#########
-for  (j in c( "SDN", "SDN3", "SDN2","SDN2 SPLIT","SDN2S","SDN4", "SDN4 SPLIT","MST2", "MAS FWS", "MAS","MHWS" ,"MAI","MAIHWS", "MAI_HWS","MAI HWS", "MAIS", "BNZ", "BHWS" , "JES" , "SDY", "BBK", "BIBAK","SDN SPLIT","SDY SPLIT", "SDNS","MST_SPLIT","MST2_FWS")) {
+for  (j in c("DNJ","DNM","MST_FWS","MST","SDN", "SDN3", "SDN2","SDN2 SPLIT","SDN2S","SDN4", "SDN4 SPLIT","MST2", "MAS FWS", "MAS","MHWS" ,"MAI","MAIHWS", "MAI_HWS","MAI HWS", "MAIS", "BNZ", "BHWS" , "JES" , "SDY", "BBK", "BIBAK","SDN SPLIT","SDY SPLIT", "SDNS","MST_SPLIT","MST2_FWS","WGS","STV","STF")) {
   df_gis_coords[grepl(j,df_gis_coords$HOLE_ID),"VEIN"] <- j
 }
 
@@ -86,8 +86,18 @@ VEIN_ROCK_CODE <- cbind(VEIN_NAME, ROCK_CODE) %>% as.data.frame()
 
 df_gis_coords <- left_join(df_gis_coords,VEIN_ROCK_CODE, by = c("VEIN" = "VEIN_NAME"))
 
+
+# ifelse(VEIN == "SDY","SDN",VEIN)
+
+
+df_gis_coords <- df_gis_coords %>% mutate(VEIN = ifelse(VEIN == "SDY","SDN",
+                                                        ifelse(VEIN == "MAI_HWS","MAIHWS",
+                                                               ifelse(VEIN == "MAI HWS","SDN",
+                                                                      ifelse(VEIN == "MST_SPLIT","MST2FWS",
+                                                                             ifelse(VEIN == "MST2_FWS","MST2FWS",VEIN))))))
+
 df_gis_coords <- df_gis_coords %>% 
-  mutate(fn_ROCKCODE =ifelse(is.na(ROCKCODE), paste(VEIN,ROCK_CODE, sep = " "),paste(VEIN,ROCKCODE, sep = " ")))
+  mutate(fn_ROCKCODE =ifelse(is.na(ROCKCODE), paste(VEIN,ROCK_CODE.x, sep = " "),paste(VEIN,ROCKCODE, sep = " ")))
 
 
 ########### Loading Assay Values ###############
@@ -168,7 +178,7 @@ df_gis_assay <- lapply(file.list_gis, face_map_gis_assay) %>%
   distinct(.keep_all = TRUE)
 
 
-
+##########################
 
 df_gis_assay <- df_gis_assay %>% group_by(HOLE_ID,ROCK_TYPE) %>%
   summarize(LENGTH = sum(LENGTH),

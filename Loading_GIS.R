@@ -21,7 +21,8 @@ file.list_gis <- file.list_gis[!grepl(paste(toMatch,collapse="|"), file.list_gis
 
 
 face_map_gis<- function(i) {
-  x = read_xlsx(i,sheet = 1)
+  x <- read_xlsx(i,sheet = 1)
+                 
   colnames(x) <-
     c(
       "c1",
@@ -49,7 +50,8 @@ face_map_gis<- function(i) {
     AREA = as.character(c7),
     ROCKCODE = as.character(c8),
     SAMP_BY = as.character(c9),
-    TENEMENT = as.character(c11)) %>%
+    TENEMENT = as.character(c11),
+    file = i[1]) %>%
     filter(!is.na(HOLE_ID))
   
   
@@ -65,8 +67,6 @@ face_map_gis<- function(i) {
 
 
 
-
-
 ############# Applying Function to the file list gis ###############
 df_gis_coords <- lapply(file.list_gis, face_map_gis) %>%
   bind_rows %>%
@@ -78,8 +78,8 @@ for  (j in c("WGS","DCX","STF","DNA HWS","DMI","DNC","MIHW","DNF","MI","DNJ","DN
   df_gis_coords[grepl(j,df_gis_coords$HOLE_ID),"VEIN"] <- j
 }
 
-VEIN_NAME <- c(c( "MAIS","DNJ","DNF","SDN", "SDN3", "SDN2","SDN2 SPLIT","SDN2S","SDN4", "SDN4 SPLIT","MST2", "MAS FWS", "MAS","MHWS" ,"MAI","MAIHWS", "MAI_HWS","MAI HWS", "MAIS", "BNZ", "BHWS" , "JES" , "SDY", "BBK", "BIBAK","SDN SPLIT","SDY SPLIT", "SDNS","MST_SPLIT","MST2_FWS"))
-ROCK_CODE <- c(c( "222","520","510","140", "170", "150","151","151","180", "000","420", "421", "120","121" ,"220","221", "221","221", "000", "110", "113" , "160" , "140", "130", "130","140 - 000","140 - 000", "140 - 000","420 - 000","421"))
+VEIN_NAME <- c(c( "SDN4S","MAIS","DNJ","DNF","SDN", "SDN3", "SDN2","SDN2 SPLIT","SDN2S","SDN4", "SDN4 SPLIT","MST2", "MAS FWS", "MAS","MHWS" ,"MAI","MAIHWS", "MAI_HWS","MAI HWS", "MAIS", "BNZ", "BHWS" , "JES" , "SDY", "BBK", "BIBAK","SDN SPLIT","SDY SPLIT", "SDNS","MST_SPLIT","MST2_FWS"))
+ROCK_CODE <- c(c( "181","222","520","510","140", "170", "150","151","151","180", "000","420", "421", "120","121" ,"220","221", "221","221", "000", "110", "113" , "160" , "140", "130", "130","140 - 000","140 - 000", "140 - 000","420 - 000","421"))
 
 VEIN_ROCK_CODE <- cbind(VEIN_NAME, ROCK_CODE) %>% as.data.frame()
 

@@ -7,6 +7,8 @@ library(shinythemes)
 library(tidyverse)
 library(dplyr)
 
+setwd("~/Current Work/R_projects/Blocking_GIS")
+
 ui <- fluidPage(  
 
   titlePanel("MACO MINE"),
@@ -31,7 +33,7 @@ server <- function(input, output) {
     
     p1 <-  function(){
       plot_ly(data = df_points) %>% 
-      add_sf(type = "scatter", color = ~fn_ROCKCODE, text = ~HOLE_ID)%>% 
+      add_sf(type = "scatter", color = ~fn_ROCKCODE, text = ~paste(HOLE_ID, file))%>% 
       layout(title = "AMCI Face Samples",
              plot_bgcolor='#e5ecf6', 
              xaxis = list( 

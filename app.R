@@ -50,14 +50,23 @@ server <- function(input, output) {
     
     output$plot2 <- plotly::renderPlotly({p1()})
 
+    # 
+    # label = paste(HOLE_ID,COMP_AU,sep = " "))
     
     p2 <- function(){
-      POS_FACE_MAP  %>% filter(fn_ROCKCODE == input$VEIN) %>% 
+      POS_FACE_MAP  %>% 
+        filter(fn_ROCKCODE == input$VEIN) %>%  
+        mutate(COMP_AU = signif(COMP_AU,3)) %>%
       ggplot(aes(x = POS_N_S, y = LEVEL, label = HOLE_ID)) + 
         # geom_text(hjust = 0, vjust = 0,nudge_x = 0.5,nudge_y = 0.5) +
-        geom_point(aes(x = BLOCK_LOCATIONX, y = LEVEL, ))  + 
-        scale_x_continuous(name="POSITION", breaks=seq(-100,120,5)) +
+        geom_point(aes(x = BLOCK_LOCATIONX, y = LEVEL))  + 
+        geom_text(aes(x = BLOCK_LOCATIONX, y = LEVEL, label = COMP_AU),hjust = 0, vjust = 0,nudge_x = 0.5,nudge_y = 0.5) +
+        
+      scale_x_continuous(name="POSITION", breaks=seq(-100,120,5)) +
         scale_y_continuous(name="LEVEL", breaks=seq(380,1010,15))
+      
+      # geom_label(aes(label = HOLE_ID))
+      # geom_text(aes(label = paste(HOLE_ID,COMP_AU, sep = " ")), parse = TRUE)
         
         
         

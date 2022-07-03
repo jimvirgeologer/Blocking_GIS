@@ -160,22 +160,15 @@ face_map_gis_assay<- function(i) {
     REASSAY = as.numeric(c11),
    ROCK_TYPE = as.character(c13),
    MV_WIDTH = as.numeric(c14),
-   BATCH_NO = as.character(c17)
-   
-   ) %>%
+   BATCH_NO = as.character(c17),
+   file = i[1]) %>%
     filter(!is.na(HOLE_ID))
-  
-  
-  
-  
-  
 
-  
 } 
 
 
 ############# Applying Function to the file list gis ###############
-df_gis_assay <- lapply(file.list_gis, face_map_gis_assay) %>%
+df_gis_assay_raw <- lapply(file.list_gis, face_map_gis_assay) %>%
   bind_rows %>%
   as.data.frame() %>%
   distinct(.keep_all = TRUE)
@@ -183,14 +176,15 @@ df_gis_assay <- lapply(file.list_gis, face_map_gis_assay) %>%
 
 ##########################
 
-df_gis_assay <- df_gis_assay %>% group_by(HOLE_ID,ROCK_TYPE) %>%
+df_gis_assay <- df_gis_assay_raw %>% group_by(HOLE_ID,ROCK_TYPE) %>%
   summarize(LENGTH = sum(LENGTH),
             AU = sum(LEN_AU)/ sum(LENGTH),
             AU = ifelse(AU >=25 ,25,AU),
             AG = sum(LEN_AG)/ sum(LENGTH),
             CU = sum(LEN_CU)/ sum(LENGTH),
             ZN = sum(LEN_ZN)/ sum(LENGTH),
-            PB = sum(LEN_PB)/ sum(LENGTH)) %>%
+            PB = sum(LEN_PB)/ sum(LENGTH),
+            file = file) %>%
   mutate(LEN_AU = LENGTH * AU)
 
 
@@ -259,25 +253,48 @@ add_sf(type = "scatter", color = ~fn_ROCKCODE, text = ~HOLE_ID)%>%
 plot
 
 
-############ INPUT SHAPEFILE POSITION LINES ###############  
+############ INPUT SHAPEFILE POSITION LINES - N_S_ ###############  
 
 setwd("~/Current Work/R_projects/Blocking_GIS/Shapefiles")
 
 
-POS_LINES <- st_read(
-  "./N_S_Positions.shp")
-POS_LINES<- POS_LINES[,-c(1:2)]
+POS_LINES_N_S <- st_read(
+  "./N_S_Pos.shp")
+POS_LINES_N_S<- POS_LINES_N_S [,-c(1)]
 POS_LINES_PLOT <- ggplot() + 
-  geom_sf(data = POS_LINES, size = 0.1, color = "cyan") + 
+  geom_sf(data = POS_LINES_N_S , size = 0.1, color = "cyan") + 
   ggtitle("POS_LINES_PLOT") + 
   coord_sf()
 
-plot(POS_LINES)
 
+colnames(POS_LINES_N_S) <-
+  c("POS_N_S","geometry")
+
+plot(POS_LINES_N_S)
+
+
+############ INPUT SHAPEFILE POSITION LINES - E_W ###############  
+
+setwd("~/Current Work/R_projects/Blocking_GIS/Shapefiles")
+
+
+POS_LINES_E_W<- st_read(
+  "./E_W_Pos.shp")
+POS_LINES_E_W<- POS_LINES_E_W[,-c(1)]
+POS_LINES_PLOT <- ggplot() + 
+  geom_sf(data = POS_LINES_E_W, size = 0.1, color = "cyan") + 
+  ggtitle("POS_LINES_PLOT") + 
+  coord_sf()
+
+
+colnames(POS_LINES_E_W) <-
+  c("POS_N_S","geometry")
+
+plot(POS_LINES_E_W)
 
 
 ############# Intersection of the position lines and the face mapping plots #############
-POS_FACE_MAP <- st_intersection(POS_LINES,df_points)
+POS_FACE_MAP <- st_intersection(POS_LINES_N_S,df_points)
 POS_FACE_MAP <- POS_FACE_MAP %>% mutate(BLOCK_LOCATIONX =  (LOCATIONX-((LOCATIONY - 815635.8096)/(tan(40*pi/180)))-614923.6274)/155.5724*10)
 
 
